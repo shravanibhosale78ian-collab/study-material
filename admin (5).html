@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin – Electrical Vault</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--pri:#4f46e5;--pri2:#4338ca;--txt:#1e293b;--mut:#64748b;--bd:#e2e8f0;--ok:#16a34a;--bad:#dc2626}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt)}
+header{background:linear-gradient(135deg,#0f172a,#4f46e5);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+header h1{margin:0;font-size:1.15rem}
+.hr{display:flex;gap:8px;align-items:center}
+.wrap{max-width:1050px;margin:20px auto;padding:0 14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px;margin-bottom:16px}
+input,select,button{font:inherit}
+input,select{width:100%;padding:10px;border:1px solid var(--bd);border-radius:8px;background:#fff}
+label{font-size:.82rem;color:var(--mut);display:block;margin:10px 0 4px}
+button{cursor:pointer;border:0;border-radius:8px;padding:9px 16px;background:var(--pri);color:#fff;font-weight:600}
+button:hover{background:var(--pri2)}
+button.ghost{background:rgba(255,255,255,.18)}
+button.ok{background:var(--ok)}button.bad{background:var(--bad)}
+a.btn{display:inline-block;text-decoration:none;background:#e2e8f0;color:var(--txt);padding:8px 14px;border-radius:8px;font-size:.85rem;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:14px}
+.stat b{font-size:1.6rem;display:block}.stat span{color:var(--mut);font-size:.82rem}
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tabs button{background:#e2e8f0;color:var(--txt)}.tabs button.on{background:var(--pri);color:#fff}
+.item{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid var(--bd);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:#fff;flex-wrap:wrap}
+.item h3{margin:0 0 4px;font-size:1rem}
+.tag{display:inline-block;font-size:.72rem;background:#eef2ff;color:var(--pri2);padding:2px 8px;border-radius:99px;margin:2px 4px 2px 0}
+.meta{font-size:.8rem;color:var(--mut)}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.msg{padding:9px 12px;border-radius:8px;margin-top:10px;font-size:.88rem;display:none}
+.msg.err{display:block;background:#fee2e2;color:var(--bad)}.msg.ok{display:block;background:#dcfce7;color:var(--ok)}
+.hide{display:none!important}
+.auth{max-width:420px;margin:50px auto}
+progress{width:100%;margin-top:8px}
+.empty{text-align:center;color:var(--mut);padding:24px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🛠 Electrical Vault – Admin</h1>
+  <div class="hr" id="bar"></div>
+</header>
+
+<div id="loginView" class="wrap hide">
+  <div class="card auth">
+    <h3 style="margin-top:0">Admin login</h3>
+    <form id="loginForm">
+      <label>Email</label><input id="email" type="email" required>
+      <label>Password</label><input id="pass" type="password" required>
+      <button style="width:100%;margin-top:14px">Login</button>
+      <div id="loginMsg" class="msg"></div>
+    </form>
+  </div>
+</div>
+
+<div id="denied" class="wrap hide">
+  <div class="card" style="text-align:center">
+    <h3>Access denied</h3>
+    <p class="meta">This account is not an admin. Add its UID under <code>admins</code> in the Realtime Database.</p>
+    <p>Your UID: <code id="uidShow"></code></p>
+    <a class="btn" href="index.html">Back to student site</a>
+  </div>
+</div>
+
+<div id="panel" class="wrap hide">
+  <div class="stats">
+    <div class="stat"><b id="stM">0</b><span>Published materials</span></div>
+    <div class="stat"><b id="stP">0</b><span>Pending approval</span></div>
+    <div class="stat"><b id="stU">0</b><span>Registered students</span></div>
+  </div>
+  <div class="tabs">
+    <button data-t="up" class="on">Upload material</button>
+    <button data-t="pend">Pending approvals</button>
+    <button data-t="mat">All materials</button>
+    <button data-t="usr">Students</button>
+  </div>
+
+  <div id="t-up" class="card">
+    <form id="upForm">
+      <label>Title</label><input id="uTitle" required>
+      <label>Subject</label><input id="uSubject" required>
+      <div class="grid">
+        <div><label>Year</label><select id="uYear"></select></div>
+        <div><label>Branch</label><select id="uBranch"></select></div>
+        <div><label>Division</label><select id="uDiv"></select></div>
+        <div><label>Type</label><select id="uType"></select></div>
+      </div>
+      <label>File (max 10 MB)</label><input id="uFile" type="file">
+      <label>…or paste a link</label><input id="uLink" type="url" placeholder="https://">
+      <button style="margin-top:14px">Publish</button>
+      <progress id="prog" value="0" max="100" class="hide"></progress>
+      <div id="upMsg" class="msg"></div>
+    </form>
+  </div>
+  <div id="t-pend" class="hide"></div>
+  <div id="t-mat" class="hide"></div>
+  <div id="t-usr" class="hide"></div>
+</div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getDatabase,ref,get,set,push,remove,onValue} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBcQETZ48Uk5Oc_RWnKoyWjtpHpT53Mk1E",
+  authDomain: "electricalvault-111e6.firebaseapp.com",
+  databaseURL: "https://electricalvault-111e6-default-rtdb.firebaseio.com",
+  projectId: "electricalvault-111e6",
+  storageBucket: "electricalvault-111e6.firebasestorage.app",
+  messagingSenderId: "190986906289",
+  appId: "1:190986906289:web:c86d9352bebdf119ed9090",
+  measurementId: "G-4X5F81G0J0"
+};
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);
+
+const ADMIN_EMAILS=["shravanibhosale2008@gmail.com"];
+/* ---- Cloudinary (file uploads) ---- */
+const CLOUD_NAME="dbirgrdbp";
+const UPLOAD_PRESET="ml_default";   // must be an UNSIGNED upload preset (Cloudinary → Settings → Upload)
+const MAX_MB=10;
+function cloudUpload(file,onProgress){
+  return new Promise((ok,no)=>{
+    const fd=new FormData();fd.append("file",file);fd.append("upload_preset",UPLOAD_PRESET);
+    const x=new XMLHttpRequest();
+    x.open("POST",`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`);
+    x.upload.onprogress=e=>e.lengthComputable&&onProgress(e.loaded/e.total*100);
+    x.onload=()=>{let r={};try{r=JSON.parse(x.responseText)}catch{}
+      x.status===200?ok(r.secure_url):no(new Error(r.error?.message||"Upload failed ("+x.status+")"))};
+    x.onerror=()=>no(new Error("Network error during upload"));
+    x.send(fd);
+  });
+}
+
+const YEARS=["FE (1st Year)","SE (2nd Year)","TE (3rd Year)","BE (4th Year)"];
+const BRANCHES=["All Branches","Computer Engineering","Information Technology","AI & Data Science","Electronics & Telecommunication","Electrical Engineering","Mechanical Engineering","Civil Engineering","First Year (Common)"];
+const DIVS=["All","A","B","C","D","M","N"];
+const TYPES=["Notes","PYQ (Previous Papers)","Assignment","Syllabus","Lab Manual","Video / Link","Other"];
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fill=(id,a)=>$(id).innerHTML=a.map(x=>`<option>${esc(x)}</option>`).join("");
+fill("uYear",YEARS);fill("uBranch",BRANCHES);fill("uDiv",DIVS);fill("uType",TYPES);
+const show=(id,on)=>$(id).classList.toggle("hide",!on);
+const msg=(id,t,ok)=>{const e=$(id);e.textContent=t;e.className="msg "+(ok?"ok":"err")};
+
+let me=null,profile=null,unsubs=[];
+
+$("loginForm").onsubmit=async e=>{e.preventDefault();
+  try{await signInWithEmailAndPassword(auth,$("email").value.trim(),$("pass").value)}
+  catch(err){msg("loginMsg",err.code==="auth/invalid-credential"?"Wrong email or password":err.message)}};
+
+onAuthStateChanged(auth,async u=>{
+  unsubs.forEach(f=>f());unsubs=[];me=u;
+  ["loginView","denied","panel"].forEach(x=>show(x,false));
+  if(!u){$("bar").innerHTML="";show("loginView",true);return}
+  $("bar").innerHTML=`<a class="btn" href="index.html">Student site</a><button class="ghost" id="out">Logout</button>`;
+  $("out").onclick=()=>signOut(auth);
+  const a=await get(ref(db,"admins/"+u.uid));
+  if(!a.exists()&&!ADMIN_EMAILS.includes((u.email||"").toLowerCase())){$("uidShow").textContent=u.uid;show("denied",true);return}
+  const p=await get(ref(db,"users/"+u.uid));profile=p.val()||{name:u.email};
+  show("panel",true);start();
+});
+
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));
+  ["up","pend","mat","usr"].forEach(t=>show("t-"+t,t===b.dataset.t));
+});
+
+function start(){
+  // published materials
+  unsubs.push(onValue(ref(db,"materials"),s=>{
+    const a=Object.entries(s.val()||{}).map(([id,v])=>({id,...v})).sort((x,y)=>y.createdAt-x.createdAt);
+    $("stM").textContent=a.length;
+    $("t-mat").innerHTML=a.length?a.map(m=>`<div class="item"><div><h3>${esc(m.title)}</h3>
+      <span class="tag">${esc(m.subject)}</span><span class="tag">${esc(m.type)}</span><span class="tag">${esc(m.year)}</span><span class="tag">${esc(m.branch)}</span><span class="tag">Div ${esc(m.division)}</span>
+      <div class="meta">By ${esc(m.uploaderName||"Admin")} · ${new Date(m.createdAt).toLocaleDateString()}</div></div>
+      <div class="acts"><a class="btn" target="_blank" rel="noopener" href="${esc(m.url)}">Open</a><button class="bad" data-del="${m.id}">Delete</button></div></div>`).join(""):`<div class="card empty">No materials yet.</div>`;
+    $("t-mat").querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{if(confirm("Delete this material?"))await remove(ref(db,"materials/"+b.dataset.del))});
+  }));
+  // pending student uploads: /pending/<uid>/<id>
+  unsubs.push(onValue(ref(db,"pending"),s=>{
+    const list=[];Object.entries(s.val()||{}).forEach(([uid,o])=>Object.entries(o).forEach(([id,v])=>list.push({uid,id,...v})));
+    list.sort((x,y)=>y.createdAt-x.createdAt);
+    $("stP").textContent=list.length;
+    $("t-pend").innerHTML=list.length?list.map(m=>`<div class="item"><div><h3>${esc(m.title)}</h3>
+      <span class="tag">${esc(m.subject)}</span><span class="tag">${esc(m.type)}</span><span class="tag">${esc(m.year)}</span><span class="tag">${esc(m.branch)}</span><span class="tag">Div ${esc(m.division)}</span>
+      <div class="meta">Uploaded by ${esc(m.uploaderName)} · ${new Date(m.createdAt).toLocaleDateString()}</div></div>
+      <div class="acts"><a class="btn" target="_blank" rel="noopener" href="${esc(m.url)}">Preview</a>
+      <button class="ok" data-ap="${m.uid}/${m.id}">Approve</button><button class="bad" data-rj="${m.uid}/${m.id}">Reject</button></div></div>`).join(""):`<div class="card empty">No pending uploads 🎉</div>`;
+    const byKey=k=>list.find(x=>x.uid+"/"+x.id===k);
+    $("t-pend").querySelectorAll("[data-ap]").forEach(b=>b.onclick=async()=>{
+      const m=byKey(b.dataset.ap);const {uid,id,...data}=m;
+      await set(push(ref(db,"materials")),{...data,approvedBy:me.uid});
+      await remove(ref(db,`pending/${uid}/${id}`));});
+    $("t-pend").querySelectorAll("[data-rj]").forEach(b=>b.onclick=async()=>{
+      if(confirm("Reject and remove this upload?")){const m=byKey(b.dataset.rj);await remove(ref(db,`pending/${m.uid}/${m.id}`))}});
+  }));
+  // students
+  unsubs.push(onValue(ref(db,"users"),s=>{
+    const a=Object.values(s.val()||{});$("stU").textContent=a.length;
+    $("t-usr").innerHTML=a.length?`<div class="card" style="overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:.88rem">
+      <tr style="text-align:left;color:var(--mut)"><th>Name</th><th>Email</th><th>Year</th><th>Branch</th><th>Div</th></tr>
+      ${a.map(u=>`<tr style="border-top:1px solid var(--bd)"><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${esc(u.year)}</td><td>${esc(u.branch)}</td><td>${esc(u.division)}</td></tr>`).join("")}</table></div>`:`<div class="card empty">No students yet.</div>`;
+  }));
+}
+
+$("upForm").onsubmit=async e=>{
+  e.preventDefault();
+  const f=$("uFile").files[0],link=$("uLink").value.trim();
+  if(!f&&!link)return msg("upMsg","Choose a file or paste a link");
+  if(f&&f.size>MAX_MB*1024*1024)return msg("upMsg",`File is larger than ${MAX_MB} MB`);
+  try{
+    let url=link,fileName="";
+    if(f){
+      show("prog",true);
+      url=await cloudUpload(f,p=>$("prog").value=p);fileName=f.name;
+    }
+    await set(push(ref(db,"materials")),{title:$("uTitle").value.trim(),subject:$("uSubject").value.trim(),type:$("uType").value,year:$("uYear").value,branch:$("uBranch").value,division:$("uDiv").value,url,fileName,uploaderUid:me.uid,uploaderName:(profile.name||"Admin")+" (Admin)",createdAt:Date.now()});
+    $("upForm").reset();show("prog",false);msg("upMsg","Published!",true);
+  }catch(err){show("prog",false);msg("upMsg",err.message)}
+};
+</script>
+</body>
+</html>

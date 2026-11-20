@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Electrical Vault – Amrutvahini College Study Material</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--pri:#4f46e5;--pri2:#4338ca;--txt:#1e293b;--mut:#64748b;--bd:#e2e8f0;--ok:#16a34a;--bad:#dc2626}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt)}
+header{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+header h1{margin:0;font-size:1.15rem}
+header small{opacity:.85;display:block;font-weight:400}
+.hr{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.wrap{max-width:1050px;margin:20px auto;padding:0 14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px;margin-bottom:16px}
+input,select,button,textarea{font:inherit}
+input,select,textarea{width:100%;padding:10px;border:1px solid var(--bd);border-radius:8px;background:#fff}
+label{font-size:.82rem;color:var(--mut);display:block;margin:10px 0 4px}
+button{cursor:pointer;border:0;border-radius:8px;padding:10px 16px;background:var(--pri);color:#fff;font-weight:600}
+button:hover{background:var(--pri2)}
+button.ghost{background:rgba(255,255,255,.18)}
+button.sec{background:#e2e8f0;color:var(--txt)}
+a.btn{display:inline-block;text-decoration:none;background:var(--pri);color:#fff;padding:7px 14px;border-radius:8px;font-size:.85rem;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tabs button{background:#e2e8f0;color:var(--txt)}
+.tabs button.on{background:var(--pri);color:#fff}
+.auth{max-width:440px;margin:40px auto}
+.item{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid var(--bd);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:#fff}
+.item h3{margin:0 0 4px;font-size:1rem}
+.tag{display:inline-block;font-size:.72rem;background:#eef2ff;color:var(--pri2);padding:2px 8px;border-radius:99px;margin:2px 4px 2px 0}
+.tag.p{background:#fef3c7;color:#92400e}.tag.a{background:#dcfce7;color:#166534}
+.meta{font-size:.8rem;color:var(--mut)}
+.msg{padding:9px 12px;border-radius:8px;margin-top:10px;font-size:.88rem;display:none}
+.msg.err{display:block;background:#fee2e2;color:var(--bad)}.msg.ok{display:block;background:#dcfce7;color:var(--ok)}
+.hide{display:none!important}
+progress{width:100%;margin-top:8px}
+.empty{text-align:center;color:var(--mut);padding:24px}
+</style>
+</head>
+<body>
+<header>
+  <h1>⚡ Electrical Vault <small>Amrutvahini College of Engineering – Study Material</small></h1>
+  <div class="hr" id="userBar" class="hide"></div>
+</header>
+
+<!-- AUTH -->
+<div id="authView" class="wrap hide">
+  <div class="card auth">
+    <div class="tabs">
+      <button id="tabLogin" class="on">Login</button>
+      <button id="tabSignup">Sign up</button>
+    </div>
+    <form id="authForm">
+      <div id="signupFields" class="hide">
+        <label>Full name</label><input id="name" placeholder="Your name">
+        <div class="grid">
+          <div><label>Year</label><select id="sYear"></select></div>
+          <div><label>Branch</label><select id="sBranch"></select></div>
+          <div><label>Division</label><select id="sDiv"></select></div>
+        </div>
+      </div>
+      <label>College email</label><input id="email" type="email" required placeholder="you@example.com">
+      <label>Password</label><input id="pass" type="password" required minlength="6" placeholder="Min 6 characters">
+      <button style="width:100%;margin-top:14px" id="authBtn">Login</button>
+      <p style="text-align:center;margin:10px 0 0"><a href="#" id="forgot" style="font-size:.85rem;color:var(--pri)">Forgot password?</a></p>
+      <div id="authMsg" class="msg"></div>
+    </form>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appView" class="wrap hide">
+  <div class="card">
+    <h3 style="margin-top:0">Browse study material</h3>
+    <div class="grid">
+      <div><label>Year</label><select id="fYear"></select></div>
+      <div><label>Branch</label><select id="fBranch"></select></div>
+      <div><label>Division</label><select id="fDiv"></select></div>
+      <div><label>Type</label><select id="fType"></select></div>
+    </div>
+    <label>Search title / subject</label><input id="fSearch" placeholder="e.g. Network Analysis">
+  </div>
+
+  <div id="list"></div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Upload your material <small class="meta">(goes live after admin approval)</small></h3>
+    <form id="upForm">
+      <label>Title</label><input id="uTitle" required>
+      <label>Subject</label><input id="uSubject" required placeholder="e.g. Engineering Mathematics">
+      <div class="grid">
+        <div><label>Year</label><select id="uYear"></select></div>
+        <div><label>Branch</label><select id="uBranch"></select></div>
+        <div><label>Division</label><select id="uDiv"></select></div>
+        <div><label>Type</label><select id="uType"></select></div>
+      </div>
+      <label>File (PDF, DOC, PPT, image – max 10 MB)</label><input id="uFile" type="file">
+      <label>…or paste a link (Google Drive / YouTube etc.)</label><input id="uLink" type="url" placeholder="https://">
+      <button style="margin-top:14px">Submit for approval</button>
+      <progress id="prog" value="0" max="100" class="hide"></progress>
+      <div id="upMsg" class="msg"></div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">My uploads</h3>
+    <div id="mine"></div>
+  </div>
+</div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getDatabase,ref,get,set,push,onValue} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBcQETZ48Uk5Oc_RWnKoyWjtpHpT53Mk1E",
+  authDomain: "electricalvault-111e6.firebaseapp.com",
+  databaseURL: "https://electricalvault-111e6-default-rtdb.firebaseio.com",
+  projectId: "electricalvault-111e6",
+  storageBucket: "electricalvault-111e6.firebasestorage.app",
+  messagingSenderId: "190986906289",
+  appId: "1:190986906289:web:c86d9352bebdf119ed9090",
+  measurementId: "G-4X5F81G0J0"
+};
+const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getDatabase(app);
+
+const ADMIN_EMAILS=["shravanibhosale2008@gmail.com"];
+/* ---- Cloudinary (file uploads) ---- */
+const CLOUD_NAME="dbirgrdbp";
+const UPLOAD_PRESET="ml_default";   // must be an UNSIGNED upload preset (Cloudinary → Settings → Upload)
+const MAX_MB=10;
+function cloudUpload(file,onProgress){
+  return new Promise((ok,no)=>{
+    const fd=new FormData();fd.append("file",file);fd.append("upload_preset",UPLOAD_PRESET);
+    const x=new XMLHttpRequest();
+    x.open("POST",`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`);
+    x.upload.onprogress=e=>e.lengthComputable&&onProgress(e.loaded/e.total*100);
+    x.onload=()=>{let r={};try{r=JSON.parse(x.responseText)}catch{}
+      x.status===200?ok(r.secure_url):no(new Error(r.error?.message||"Upload failed ("+x.status+")"))};
+    x.onerror=()=>no(new Error("Network error during upload"));
+    x.send(fd);
+  });
+}
+
+/* ---- Edit these lists to match the college ---- */
+const YEARS=["FE (1st Year)","SE (2nd Year)","TE (3rd Year)","BE (4th Year)"];
+const BRANCHES=["Computer Engineering","Information Technology","AI & Data Science","Electronics & Telecommunication","Electrical Engineering","Mechanical Engineering","Civil Engineering","First Year (Common)"];
+const DIVS=["A","B","C","D","M","N"];
+const TYPES=["Notes","PYQ (Previous Papers)","Assignment","Syllabus","Lab Manual","Video / Link","Other"];
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fill=(id,arr,all)=>{$(id).innerHTML=(all?`<option value="">${all}</option>`:"")+arr.map(x=>`<option>${esc(x)}</option>`).join("")};
+fill("sYear",YEARS);fill("sBranch",BRANCHES);fill("sDiv",DIVS);
+fill("fYear",YEARS,"All years");fill("fBranch",BRANCHES,"All branches");fill("fDiv",DIVS,"All divisions");fill("fType",TYPES,"All types");
+fill("uYear",YEARS);fill("uBranch",BRANCHES);fill("uDiv",DIVS);fill("uType",TYPES);
+
+let mode="login", me=null, profile=null, all=[], unsubs=[];
+const show=(el,on)=>$(el).classList.toggle("hide",!on);
+const msg=(id,t,ok)=>{const e=$(id);e.textContent=t;e.className="msg "+(ok?"ok":"err")};
+
+$("tabLogin").onclick=()=>setMode("login");
+$("tabSignup").onclick=()=>setMode("signup");
+function setMode(m){mode=m;$("tabLogin").classList.toggle("on",m=="login");$("tabSignup").classList.toggle("on",m=="signup");
+  show("signupFields",m=="signup");$("authBtn").textContent=m=="login"?"Login":"Create account";$("authMsg").className="msg"}
+
+$("authForm").onsubmit=async e=>{
+  e.preventDefault();
+  const email=$("email").value.trim(),pass=$("pass").value;
+  try{
+    if(mode=="signup"){
+      if(!$("name").value.trim())return msg("authMsg","Please enter your name");
+      const c=await createUserWithEmailAndPassword(auth,email,pass);
+      await set(ref(db,"users/"+c.user.uid),{name:$("name").value.trim(),email,year:$("sYear").value,branch:$("sBranch").value,division:$("sDiv").value,createdAt:Date.now()});
+    }else await signInWithEmailAndPassword(auth,email,pass);
+  }catch(err){msg("authMsg",nice(err))}
+};
+$("forgot").onclick=async e=>{e.preventDefault();const em=$("email").value.trim();
+  if(!em)return msg("authMsg","Enter your email first");
+  try{await sendPasswordResetEmail(auth,em);msg("authMsg","Password reset email sent",true)}catch(err){msg("authMsg",nice(err))}};
+const nice=e=>({"auth/invalid-credential":"Wrong email or password","auth/email-already-in-use":"Email already registered","auth/weak-password":"Password too weak","auth/invalid-email":"Invalid email","auth/operation-not-allowed":"Enable Email/Password sign-in in Firebase Console"}[e.code]||e.message);
+
+onAuthStateChanged(auth,async u=>{
+  unsubs.forEach(f=>f());unsubs=[];me=u;
+  if(!u){show("authView",true);show("appView",false);$("userBar").innerHTML="";return}
+  const [p,a]=await Promise.all([get(ref(db,"users/"+u.uid)),get(ref(db,"admins/"+u.uid))]);
+  profile=p.val()||{name:u.email,year:YEARS[0],branch:BRANCHES[0],division:DIVS[0]};
+  $("userBar").innerHTML=`<span>👋 ${esc(profile.name)}</span>${(a.exists()||ADMIN_EMAILS.includes((u.email||"").toLowerCase()))?'<a class="btn" style="background:rgba(255,255,255,.25)" href="admin.html">Admin panel</a>':""}<button class="ghost" id="out">Logout</button>`;
+  $("out").onclick=()=>signOut(auth);
+  show("authView",false);show("appView",true);
+  // default to the student's own year / branch / division
+  for(const [id,v] of [["fYear",profile.year],["fBranch",profile.branch],["fDiv",profile.division],["uYear",profile.year],["uBranch",profile.branch],["uDiv",profile.division]]) if(v)$(id).value=v;
+  unsubs.push(onValue(ref(db,"materials"),s=>{all=Object.entries(s.val()||{}).map(([id,v])=>({id,...v})).sort((a,b)=>b.createdAt-a.createdAt);render()}));
+  unsubs.push(onValue(ref(db,"pending/"+u.uid),s=>renderMine(Object.values(s.val()||{}))));
+});
+
+["fYear","fBranch","fDiv","fType"].forEach(i=>$(i).onchange=render);
+$("fSearch").oninput=render;
+
+function render(){
+  const y=$("fYear").value,b=$("fBranch").value,d=$("fDiv").value,t=$("fType").value,q=$("fSearch").value.toLowerCase();
+  const r=all.filter(m=>(!y||m.year===y)&&(!b||m.branch===b||m.branch==="All Branches")&&(!d||m.division===d||m.division==="All")&&(!t||m.type===t)&&(!q||(m.title+" "+m.subject).toLowerCase().includes(q)));
+  $("list").innerHTML=r.length?r.map(m=>`<div class="item"><div><h3>${esc(m.title)}</h3>
+    <span class="tag">${esc(m.subject)}</span><span class="tag">${esc(m.type)}</span><span class="tag">${esc(m.year)}</span><span class="tag">${esc(m.branch)}</span><span class="tag">Div ${esc(m.division)}</span>
+    <div class="meta">By ${esc(m.uploaderName||"Admin")} · ${new Date(m.createdAt).toLocaleDateString()}</div></div>
+    <a class="btn" target="_blank" rel="noopener" href="${esc(m.url)}">Open</a></div>`).join(""):`<div class="card empty">No material found for these filters yet.</div>`;
+}
+function renderMine(a){
+  $("mine").innerHTML=a.length?a.sort((x,y)=>y.createdAt-x.createdAt).map(m=>`<div class="item"><div><h3>${esc(m.title)}</h3><span class="tag p">Pending approval</span><span class="tag">${esc(m.subject)}</span></div></div>`).join(""):`<div class="empty">Nothing pending. Approved uploads appear in the list above.</div>`;
+}
+
+$("upForm").onsubmit=async e=>{
+  e.preventDefault();
+  const f=$("uFile").files[0],link=$("uLink").value.trim();
+  if(!f&&!link)return msg("upMsg","Choose a file or paste a link");
+  if(f&&f.size>MAX_MB*1024*1024)return msg("upMsg",`File is larger than ${MAX_MB} MB`);
+  try{
+    let url=link,fileName="";
+    if(f){
+      show("prog",true);
+      url=await cloudUpload(f,p=>$("prog").value=p);fileName=f.name;
+    }
+    await set(push(ref(db,"pending/"+me.uid)),{title:$("uTitle").value.trim(),subject:$("uSubject").value.trim(),type:$("uType").value,year:$("uYear").value,branch:$("uBranch").value,division:$("uDiv").value,url,fileName,uploaderUid:me.uid,uploaderName:profile.name,createdAt:Date.now()});
+    $("upForm").reset();show("prog",false);msg("upMsg","Submitted! An admin will review it soon.",true);
+  }catch(err){show("prog",false);msg("upMsg",err.message)}
+};
+</script>
+</body>
+</html>
